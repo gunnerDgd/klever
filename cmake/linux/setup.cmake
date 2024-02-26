@@ -14,9 +14,18 @@ else ()
     message(SEND_ERROR "[Klever] Setup Aborted")
 endif()
 
+if    (EXISTS /usr/bin/konsole)
+    set(PRESET_TERMINAL      "konsole")
+    set(PRESET_TERMINAL_DIR  "--workdir ")
+    set(PRESET_TERMINAL_EXEC "--hold -e")
+elseif(EXISTS /usr/bin/gnome-terminal)
+    set(PRESET_TERMINAL "gnome-terminal")
+    set(PRESET_TERMINAL_DIR  "--working-directory=")
+    set(PRESET_TERMINAL_EXEC "-e")
+endif ()
+
 if   (NOT DEFINED PRESET_KERNEL_DIR)
     set  (PRESET_KERNEL_DIR "${CMAKE_SOURCE_DIR}/kernel")
-
 endif()
 
 if   (NOT DEFINED PRESET_KERNEL_TARGET_DIR)

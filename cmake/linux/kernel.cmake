@@ -10,19 +10,14 @@ function   (add_kernel par_name par_maj par_min)
         execute_process(COMMAND mv        ${PRESET_KERNEL_DIR}/linux-${par_maj}.${par_min} ${PRESET_KERNEL_DIR}/${par_name} WORKING_DIRECTORY ${PRESET_KERNEL_DIR})
     endif()
 
-    if   (NOT EXISTS ${PRESET_KERNEL_DIR}/${par_name}/.config)
-        execute_process(COMMAND konsole --workdir ${PRESET_KERNEL_DIR}/${par_name} --hold -e make menuconfig -j${PRESET_JOB_COUNT})
-    endif()
+    string(APPEND par_config "${PRESET_TERMINAL} ")
+    string(APPEND par_config "${PRESET_TERMINAL_DIR}${PRESET_KERNEL_DIR}/${par_name} ")
+    string(APPEND par_config "${PRESET_TERMINAL_EXEC} make menuconfig -j${PRESET_JOB_COUNT}")
+    if    (NOT EXISTS ${PRESET_KERNEL_DIR}/${par_name}/.config)
+        execute_process(COMMAND /bin/bash -c ${par_config})
+    endif ()
 
-    add_custom_target    (
-        ${par_name}-config
-        COMMAND konsole --workdir ${PRESET_KERNEL_DIR}/${par_name} --hold -e make menuconfig -j${PRESET_JOB_COUNT}
-        WORKING_DIRECTORY ${PRESET_KERNEL_DIR}/${par_name}
-    )
-
-    add_custom_target(${par_name}-clean COMMAND make clean WORKING_DIRECTORY ${PRESET_KERNEL_DIR}/${par_name})
-    add_custom_target(${par_name}-build
-        COMMAND sudo make -j${PRESET_JOB_COUNT} bzImage
-        WORKING_DIRECTORY ${PRESET_KERNEL_DIR}/${par_name}
-    )
+    add_custom_target(${par_name}-config COMMAND  /bin/bash -c ${par_config})
+    add_custom_target(${par_name}-clean  COMMAND make clean                              WORKING_DIRECTORY ${PRESET_KERNEL_DIR}/${par_name})
+    add_custom_target(${par_name}-build  COMMAND sudo make -j${PRESET_JOB_COUNT} bzImage WORKING_DIRECTORY ${PRESET_KERNEL_DIR}/${par_name})
 endfunction()
