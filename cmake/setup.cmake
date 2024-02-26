@@ -1,7 +1,9 @@
 if   (NOT DEFINED PRESET_BUILD_ARCH)
     message("[Klever] Target Architecture not defined.")
-    message("[Klever] Add -DPRESET_BUILD_ARCH=(Target Architecture) at CMake Command to avoid this problem.")
-    message(SEND_ERROR "[Klever] Setup Aborted")
+    message("[Klever] Assume Target Architecture as same as host's one.")
+
+    execute_process(COMMAND uname -m OUTPUT_VARIABLE PRESET_BUILD_ARCH)
+    message        ("[Klever] Target Architecture : ${PRESET_BUILD_ARCH}")
 endif()
 
 if (UNIX AND NOT APPLE)
