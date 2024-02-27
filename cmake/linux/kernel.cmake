@@ -53,4 +53,13 @@ function   (add_kernel par_name par_maj par_min)
     add_custom_target(${par_name}-config COMMAND  /bin/bash -c ${par_config})
     add_custom_target(${par_name}-clean  COMMAND make clean                              WORKING_DIRECTORY ${PRESET_KERNEL_DIR}/${par_name})
     add_custom_target(${par_name}-build  COMMAND sudo make -j${PRESET_JOB_COUNT} bzImage WORKING_DIRECTORY ${PRESET_KERNEL_DIR}/${par_name})
+
+    set_target_properties(${par_name}-config PROPERTIES KERNEL_VERSION_MAJOR ${par_maj})
+    set_target_properties(${par_name}-config PROPERTIES KERNEL_VERSION_MINOR ${par_min})
+
+    set_target_properties(${par_name}-clean  PROPERTIES KERNEL_VERSION_MAJOR ${par_maj})
+    set_target_properties(${par_name}-clean  PROPERTIES KERNEL_VERSION_MINOR ${par_min})
+
+    set_target_properties(${par_name}-build  PROPERTIES KERNEL_VERSION_MAJOR ${par_maj})
+    set_target_properties(${par_name}-build  PROPERTIES KERNEL_VERSION_MINOR ${par_min})
 endfunction()
