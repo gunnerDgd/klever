@@ -1,13 +1,10 @@
-cmake_minimum_required(VERSION 3.20)
-
-include(ProcessorCount)
-include(${CMAKE_SOURCE_DIR}/cmake/setup.cmake)
-
-include(${CMAKE_SOURCE_DIR}/cmake/module.cmake)
-include(${CMAKE_SOURCE_DIR}/cmake/kernel.cmake)
-include(${CMAKE_SOURCE_DIR}/cmake/kernel_target.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/setup.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/feature.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/kernel.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/kernel_launcher.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/module.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/source.cmake)
 
 if   (PRESET_BUILD_EXAMPLE)
-    include(${CMAKE_SOURCE_DIR}/examples/add_kernel.cmake)
-    include(${CMAKE_SOURCE_DIR}/examples/add_kernel_target.cmake)
+    add_subdirectory(example)
 endif()

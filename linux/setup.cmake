@@ -45,5 +45,9 @@ if   (NOT EXISTS ${PRESET_KERNEL_TARGET_DIR})
     file(MAKE_DIRECTORY ${PRESET_KERNEL_TARGET_DIR})
 endif()
 
-define_property(TARGET PROPERTY KERNEL_VERSION_MAJOR BRIEF_DOCS "Kernel Major Version" FULL_DOCS "Kernel Major Version")
-define_property(TARGET PROPERTY KERNEL_VERSION_MINOR BRIEF_DOCS "Kernel Minor Version" FULL_DOCS "Kernel Minor Version")
+define_property(TARGET PROPERTY KERNEL_VERSION_MAJOR BRIEF_DOCS "Kernel Major Version"    FULL_DOCS "Kernel Major Version")
+define_property(TARGET PROPERTY KERNEL_VERSION_MINOR BRIEF_DOCS "Kernel Minor Version"    FULL_DOCS "Kernel Minor Version")
+define_property(TARGET PROPERTY KERNEL_VERSION       BRIEF_DOCS "Kernel Version"          FULL_DOCS "Kernel Version")
+
+define_property(TARGET PROPERTY KERNEL_SOURCE_DIR    BRIEF_DOCS "Kernel Source Directory" FULL_DOCS "Kernel Source Directory")
+define_property(TARGET PROPERTY KERNEL_SOURCE        BRIEF_DOCS "Kernel Source List"      FULL_DOCS "Kernel Source List")

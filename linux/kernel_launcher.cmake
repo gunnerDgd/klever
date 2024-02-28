@@ -1,4 +1,4 @@
-# add_kernel_target (Name / Kernel)
+# add_kernel_launcher (Name / Kernel)
 #
 # <Description>
 # Adds Kernel Execution Target to your Project.
@@ -18,9 +18,12 @@
 # Name of the kernel you want to execute, which is added with "add_kernel(...)".
 #
 
-function (add_kernel_target par_name par_kernel)
+function (add_kernel_launcher par_name par_kernel)
+    get_target_property(par_kernel_ver ${par_kernel}-build KERNEL_VERSION)
     get_target_property(par_kernel_maj ${par_kernel}-build KERNEL_VERSION_MAJOR)
     get_target_property(par_kernel_min ${par_kernel}-build KERNEL_VERSION_MINOR)
+    add_custom_target  (${par_name}-launch COMMAND ./${par_name}.sh WORKING_DIRECTORY ${PRESET_KERNEL_TARGET_DIR})
+
     if   (NOT EXISTS ${PRESET_KERNEL_TARGET_DIR}/${par_name})
         message("[Klever] Creating rootfs Source Directory for initramfs Generation...")
         file   (MAKE_DIRECTORY ${PRESET_KERNEL_TARGET_DIR}/${par_name})
@@ -33,9 +36,10 @@ function (add_kernel_target par_name par_kernel)
         file   (MAKE_DIRECTORY ${PRESET_KERNEL_TARGET_DIR}/${par_name}/usr)
         file   (MAKE_DIRECTORY ${PRESET_KERNEL_TARGET_DIR}/${par_name}/tmp)
 
-        file (MAKE_DIRECTORY ${PRESET_KERNEL_TARGET_DIR}/${par_name}/lib)
-        file (MAKE_DIRECTORY ${PRESET_KERNEL_TARGET_DIR}/${par_name}/lib/modules)
-        file (MAKE_DIRECTORY ${PRESET_KERNEL_TARGET_DIR}/${par_name}/lib/modules/${par_kernel_maj}.${par_kernel_min})
+        # Create /lib Directory for modprobe / insmod.
+        file   (MAKE_DIRECTORY ${PRESET_KERNEL_TARGET_DIR}/${par_name}/lib)
+        file   (MAKE_DIRECTORY ${PRESET_KERNEL_TARGET_DIR}/${par_name}/lib/modules)
+        file   (MAKE_DIRECTORY ${PRESET_KERNEL_TARGET_DIR}/${par_name}/lib/modules/${par_kernel_ver})
 
         message("[Klever] Downloading Busybox from ${PRESET_BUSYBOX_URL}...")
         file   (DOWNLOAD ${PRESET_BUSYBOX_URL} ${PRESET_KERNEL_TARGET_DIR}/${par_name}/bin/busybox)
@@ -45,19 +49,27 @@ function (add_kernel_target par_name par_kernel)
     file   (REMOVE ${PRESET_KERNEL_TARGET_DIR}/${par_name}.sh)
     file   (REMOVE ${PRESET_KERNEL_TARGET_DIR}/nohup.out)
     file   (REMOVE ${PRESET_KERNEL_TARGET_DIR}/${par_name}/initramfs.cpio)
+
+    # Remove Previous Init Scripts
+    file   (REMOVE ${PRESET_KERNEL_TARGET_DIR}/${par_name}/${par_name}.sh)
     file   (REMOVE ${PRESET_KERNEL_TARGET_DIR}/${par_name}/init)
+
+    # Remove Previous RootFS Image
     file   (REMOVE ${PRESET_KERNEL_TARGET_DIR}/${par_name}.img)
 
+    # Remove and Re - Write Init script (${par_name}/init) for RootFS Init Process.
     message("[Klever] Generating init script...\n")
     file   (APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}/init "#!/bin/busybox sh\n")
     file   (APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}/init "/bin/busybox mount -t proc      proc     /proc\n")
     file   (APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}/init "/bin/busybox mount -t sysfs     sysfs    /sys\n")
     file   (APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}/init "/bin/busybox mount -t devtmpfs  devtmpfs /dev\n")
     file   (APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}/init "/bin/busybox mount -t tmpfs     tmpfs    /tmp\n")
+    file   (APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}/init "/bin/busybox sh /${par_name}.sh\n")
     file   (APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}/init "exec /bin/busybox sh")
 
+    # Remove and Re - Write initrd Generation and QEMU Execution Script
     message("[Klever] Generating Kernel Target Execution Script...\n")
-    file (REMOVE ${PRESET_KERNEL_TARGET_DIR}/${par_name})
+    file (REMOVE ${PRESET_KERNEL_TARGET_DIR}/${par_name}.sh)
     file (APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}.sh "#!/bin/sh\n")
     file (APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}.sh "cd ${par_name}\n")
     file (APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}.sh "chmod +x init\n")
@@ -66,7 +78,7 @@ function (add_kernel_target par_name par_kernel)
 
     file (APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}.sh "gzip ./initramfs.cpio\n")
     file (APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}.sh "mv ./initramfs.cpio.gz ./${par_name}.img\n")
-    file (APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}.sh "nohup qemu-system-x86_64 -append \'nokaslr\' -S -s ")
+    file (APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}.sh "nohup qemu-system-x86_64 -append \"nokaslr\" -S -s ")
     file (APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}.sh "-m 256 ")
 
     file (APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}.sh "-initrd ")
@@ -76,19 +88,25 @@ function (add_kernel_target par_name par_kernel)
     file (APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}.sh "${PRESET_KERNEL_DIR}/${par_kernel}/arch/x86_64/boot/bzImage ")
     file (APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}.sh "&")
 
-    add_custom_target    (${par_name}-target COMMAND ./${par_name}.sh WORKING_DIRECTORY ${PRESET_KERNEL_TARGET_DIR})
-    set_target_properties(${par_name}-target PROPERTIES KERNEL_VERSION_MAJOR ${par_kernel_maj})
-    set_target_properties(${par_name}-target PROPERTIES KERNEL_VERSION_MINOR ${par_kernel_min})
+    set_target_properties(${par_name}-launch PROPERTIES KERNEL_VERSION_MAJOR ${par_kernel_maj})
+    set_target_properties(${par_name}-launch PROPERTIES KERNEL_VERSION_MINOR ${par_kernel_min})
+    set_target_properties(${par_name}-launch PROPERTIES KERNEL_VERSION       ${par_kernel_ver})
 endfunction()
 
-function   (kernel_target_module par_name par_module)
-    get_target_property(par_kernel_maj ${par_kernel}-build KERNEL_VERSION_MAJOR)
-    get_target_property(par_kernel_min ${par_kernel}-build KERNEL_VERSION_MINOR)
-    set (par_module_dir ${PRESET_KERNEL_TARGET_DIR}/${par_name}/lib/modules/${par_kernel_maj}.${par_kernel_min})
-    file(COPY   ${CMAKE_BINARY_DIR}/${par_module}.ko  ${par_module_dir}/${par_module}.ko)
-    file(APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}/init "\n/bin/busybox insmod ${par_module_dir}/${par_module}.ko")
+function   (kernel_launcher_attach_module par_name par_module)
+    if   (NOT EXISTS ${CMAKE_BINARY_DIR}/${par_module}.ko)
+        message()
+        return ()
+    endif()
+
+    get_target_property(par_kernel_ver ${par_name}-launch KERNEL_VERSION)
+    set (par_module_dir ${PRESET_KERNEL_TARGET_DIR}/${par_name}/lib/modules/${par_kernel_ver})
+    file(COPY   ${CMAKE_BINARY_DIR}/${par_module}.ko  DESTINATION ${par_module_dir})
+    file(APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}/init-script.sh "/bin/busybox insmod /lib/modules/${par_kernel_maj}.${par_kernel_min}/${par_module}.ko\n")
+    file(APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}/init-script.sh "/bin/busybox echo \"Module ${par_module}'s Address\"\n")
+    file(APPEND ${PRESET_KERNEL_TARGET_DIR}/${par_name}/init-script.sh "/bin/busybox cat /sys/module/${par_module}/sections/.text\n\n")
 endfunction()
 
-function   (kernel_target_binary par_name par_binary)
+function   (kernel_launcher_attach_binary par_name par_binary)
     file(COPY ${CMAKE_BINARY_DIR}/${par_binary}/${par_binary} ${PRESET_KERNEL_TARGET_DIR}/${par_name}/bin/${par_binary})
 endfunction()
