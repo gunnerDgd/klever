@@ -40,19 +40,28 @@ function   (add_kernel par_name par_maj par_min)
     # This will Generate Kernel Modules' Object File which is needed to build custom module.
     if   (NOT EXISTS ${PRESET_KERNEL_DIR}/${par_name})
         message        ("[Klever] Decompressing Kernel Archive...")
-        execute_process(COMMAND tar xvzf  ${PRESET_KERNEL_DIR}/linux-${par_maj}.${par_min}.tar.gz                           WORKING_DIRECTORY ${PRESET_KERNEL_DIR})
-        execute_process(COMMAND mv        ${PRESET_KERNEL_DIR}/linux-${par_maj}.${par_min} ${PRESET_KERNEL_DIR}/${par_name} WORKING_DIRECTORY ${PRESET_KERNEL_DIR})
+        execute_process(COMMAND tar xvzf     ${PRESET_KERNEL_DIR}/linux-${par_maj}.${par_min}.tar.gz                           WORKING_DIRECTORY ${PRESET_KERNEL_DIR})
+        execute_process(COMMAND mv           ${PRESET_KERNEL_DIR}/linux-${par_maj}.${par_min} ${PRESET_KERNEL_DIR}/${par_name} WORKING_DIRECTORY ${PRESET_KERNEL_DIR})
         execute_process(COMMAND /bin/bash -c ${par_config})
+        file           (COPY_FILE "${PRESET_KERNEL_DIR}/${par_name}/Kbuild" "${PRESET_KERNEL_DIR}/${par_name}/Kbuild.old")
     endif()
 
     # If there are no .config in kernel directory,
     # Klever will suppose that no configuration progress made before, , and run "make menuconfig" for build configuration.
     if    (NOT EXISTS ${PRESET_KERNEL_DIR}/${par_name}/.config)
+        message        ("[Klever] .config not exists. Build menuconfig... (${par_config})")
         execute_process(COMMAND /bin/bash -c ${par_config})
     endif ()
 
     message("[Klever] Successfully Added, Configured, and Built Kernel.")
     message("[Klever] Your Kernel is Saved At ${PRESET_KERNEL_DIR}/${par_name}.")
+
+    # Remove old Kbuild. This contains old build data.
+    # Restore Kbuild with original one (Kbuild.old).
+    message("[Klever] Initializing Kbuild...")
+    file   (REMOVE    ${PRESET_KERNEL_DIR}/${par_name}/Kbuild)
+    file   (REMOVE    ${PRESET_KERNEL_DIR}/${par_name}/klever)
+    file   (COPY_FILE ${PRESET_KERNEL_DIR}/${par_name}/Kbuild.old ${PRESET_KERNEL_DIR}/${par_name}/Kbuild)
 
     add_custom_target(${par_name}-config      COMMAND  /bin/bash -c ${par_config})
     add_custom_target(${par_name}-clean       COMMAND make clean                                 WORKING_DIRECTORY ${PRESET_KERNEL_DIR}/${par_name})

@@ -9,13 +9,13 @@ function (add_kernel_feature_with_symbol par_name par_kernel)
             ${par_name}-build
             COMMAND sudo -S make -j${PRESET_JOB_COUNT} vmlinux
             COMMAND sudo -S make -j${PRESET_JOB_COUNT} bzImage
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/kernel/${par_kernel}
+            WORKING_DIRECTORY ${PRESET_KERNEL_DIR}/${par_kernel}
     )
 
     add_custom_target                                                (
             ${par_name}-clean
             COMMAND sudo -S make -j${PRESET_JOB_COUNT} clean
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/kernel/${par_kernel}
+            WORKING_DIRECTORY ${PRESET_KERNEL_DIR}/${par_kernel}
     )
     # Create Target Feature Directory
     set  (FEATURE_DIR "${PRESET_KERNEL_DIR}/${par_kernel}/klever/${par_name}")
@@ -48,13 +48,13 @@ function (add_kernel_feature par_name par_kernel)
             ${par_name}-build
             COMMAND sudo -S make -j${PRESET_JOB_COUNT} vmlinux
             COMMAND sudo -S make -j${PRESET_JOB_COUNT} bzImage
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/kernel/${par_kernel}
+            WORKING_DIRECTORY ${PRESET_KERNEL_DIR}/${par_kernel}
     )
 
     add_custom_target (
             ${par_name}-clean
             COMMAND sudo -S make -j${PRESET_JOB_COUNT} clean
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/kernel/${par_kernel}
+            WORKING_DIRECTORY ${PRESET_KERNEL_DIR}/${par_kernel}
     )
 
     # Create Target Feature Directory
@@ -82,7 +82,7 @@ function   (kernel_feature_include par_name par_kernel par_path)
         message(SEND_ERROR "Abort")
     endif()
 
-    set  (FEATURE_DIR "${CMAKE_SOURCE_DIR}/kernel/${par_kernel}/klever/${par_name}")
+    set  (FEATURE_DIR "${PRESET_KERNEL_DIR}/${par_kernel}/klever/${par_name}")
     if   (NOT EXISTS ${FEATURE_DIR})
         message("[Klever] No Feature ${par_name} Defined.")
         message("[Klever] Abort CMake Generator Process")
