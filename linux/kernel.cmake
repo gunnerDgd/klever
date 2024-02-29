@@ -48,6 +48,7 @@ function   (add_kernel par_name par_maj par_min)
     # If there are no .config in kernel directory,
     # Klever will suppose that no configuration progress made before, , and run "make menuconfig" for build configuration.
     if    (NOT EXISTS ${PRESET_KERNEL_DIR}/${par_name}/.config)
+        message        ("[Klever] .config not exists. Build menuconfig... (${par_config})")
         execute_process(COMMAND /bin/bash -c ${par_config})
     endif ()
 
