@@ -6,14 +6,14 @@ function (add_kernel_feature_with_symbol par_name par_kernel)
     endif()
 
     add_custom_target                                            (
-            ${par_name}-build
+            feature-${par_name}-debug-build
             COMMAND sudo -S make -j${PRESET_JOB_COUNT} vmlinux
             COMMAND sudo -S make -j${PRESET_JOB_COUNT} bzImage
             WORKING_DIRECTORY ${PRESET_KERNEL_DIR}/${par_kernel}
     )
 
     add_custom_target                                                (
-            ${par_name}-clean
+            feature-${par_name}-debug-clean
             COMMAND sudo -S make -j${PRESET_JOB_COUNT} clean
             WORKING_DIRECTORY ${PRESET_KERNEL_DIR}/${par_kernel}
     )
@@ -45,14 +45,14 @@ function (add_kernel_feature par_name par_kernel)
     endif()
 
     add_custom_target (
-            ${par_name}-build
+            feature-${par_name}-build
             COMMAND sudo -S make -j${PRESET_JOB_COUNT} vmlinux
             COMMAND sudo -S make -j${PRESET_JOB_COUNT} bzImage
             WORKING_DIRECTORY ${PRESET_KERNEL_DIR}/${par_kernel}
     )
 
     add_custom_target (
-            ${par_name}-clean
+            feature-${par_name}-clean
             COMMAND sudo -S make -j${PRESET_JOB_COUNT} clean
             WORKING_DIRECTORY ${PRESET_KERNEL_DIR}/${par_kernel}
     )

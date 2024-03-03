@@ -5,35 +5,50 @@ function (add_kernel_module_with_symbol par_name par_kernel)
         message(SEND_ERROR "Abort")
     endif()
 
+    get_target_property(par_kernel_ver kernel-${par_kernel}-build KERNEL_VERSION)
+    get_target_property(par_kernel_maj kernel-${par_kernel}-build KERNEL_VERSION_MAJOR)
+    get_target_property(par_kernel_min kernel-${par_kernel}-build KERNEL_VERSION_MINOR)
     add_custom_command (
-            OUTPUT            ${par_name}.ko
-            COMMAND           cp ${CMAKE_BINARY_DIR}/${par_name} ${CMAKE_SOURCE_DIR}/Kbuild
+            OUTPUT            ${par_name}-debug.ko
+            COMMAND           cp ${CMAKE_BINARY_DIR}/${par_name}-debug ${CMAKE_SOURCE_DIR}/Kbuild
             COMMAND           make -C ${CMAKE_SOURCE_DIR}/kernel/${par_kernel} M=${CMAKE_SOURCE_DIR} modules
             COMMAND           rm ${CMAKE_SOURCE_DIR}/Kbuild
-            COMMAND           mv ${CMAKE_SOURCE_DIR}/${par_name}.ko ${CMAKE_BINARY_DIR}/${par_name}.ko
+            COMMAND           mv ${CMAKE_SOURCE_DIR}/${par_name}.ko ${CMAKE_BINARY_DIR}/${par_name}-debug.ko
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             DEPENDS           ${CMAKE_BINARY_DIR}/${par_name}
             VERBATIM
     )
 
-    add_custom_target (${par_name}-build DEPENDS ${par_name}.ko)
+    add_custom_target (module-${par_name}-debug-build DEPENDS ${par_name}-debug.ko)
     add_custom_target (
-            ${par_name}-clean
-            COMMAND cp ${CMAKE_BINARY_DIR}/${par_name} ${CMAKE_SOURCE_DIR}/Kbuild
+            module-${par_name}-debug-clean
+            COMMAND cp ${CMAKE_BINARY_DIR}/${par_name}-debug ${CMAKE_SOURCE_DIR}/Kbuild
             COMMAND make -C ${CMAKE_SOURCE_DIR}/kernel/${par_kernel} M=${CMAKE_SOURCE_DIR} clean
             COMMAND rm ${CMAKE_SOURCE_DIR}/Kbuild
     )
 
     add_custom_target (
-            ${par_name}-install
-            COMMAND cp ${CMAKE_BINARY_DIR}/${par_name} ${CMAKE_SOURCE_DIR}/Kbuild
+            module-${par_name}-debug-install
+            COMMAND cp ${CMAKE_BINARY_DIR}/${par_name}-debug ${CMAKE_SOURCE_DIR}/Kbuild
             COMMAND make -C ${CMAKE_SOURCE_DIR}/kernel/${par_kernel} M=${CMAKE_SOURCE_DIR} modules_install
             COMMAND rm ${CMAKE_SOURCE_DIR}/Kbuild
     )
 
-    file (REMOVE ${CMAKE_BINARY_DIR}/${par_name})
-    file (APPEND ${CMAKE_BINARY_DIR}/${par_name} "ccflags-y += -g -DDEBUG\n")
-    file (APPEND ${CMAKE_BINARY_DIR}/${par_name} "obj-m += ${par_name}.o\n\n")
+    file (REMOVE ${CMAKE_BINARY_DIR}/${par_name}-debug)
+    file (APPEND ${CMAKE_BINARY_DIR}/${par_name}-debug "ccflags-y += -g -DDEBUG\n")
+    file (APPEND ${CMAKE_BINARY_DIR}/${par_name}-debug "obj-m += ${par_name}.o\n\n")
+
+    set_target_properties(module-${par_name}-debug-build PROPERTIES KERNEL_VERSION_MAJOR ${par_kernel_maj})
+    set_target_properties(module-${par_name}-debug-build PROPERTIES KERNEL_VERSION_MINOR ${par_kernel_min})
+    set_target_properties(module-${par_name}-debug-build PROPERTIES KERNEL_VERSION       ${par_kernel_ver})
+
+    set_target_properties(module-${par_name}-debug-clean PROPERTIES KERNEL_VERSION_MAJOR ${par_kernel_maj})
+    set_target_properties(module-${par_name}-debug-clean PROPERTIES KERNEL_VERSION_MINOR ${par_kernel_min})
+    set_target_properties(module-${par_name}-debug-clean PROPERTIES KERNEL_VERSION       ${par_kernel_ver})
+
+    set_target_properties(module-${par_name}-debug-install PROPERTIES KERNEL_VERSION_MAJOR ${par_kernel_maj})
+    set_target_properties(module-${par_name}-debug-install PROPERTIES KERNEL_VERSION_MINOR ${par_kernel_min})
+    set_target_properties(module-${par_name}-debug-install PROPERTIES KERNEL_VERSION       ${par_kernel_ver})
 endfunction()
 
 function (add_kernel_module par_name par_kernel)
@@ -43,6 +58,9 @@ function (add_kernel_module par_name par_kernel)
         message(SEND_ERROR "Abort")
     endif()
 
+    get_target_property(par_kernel_ver kernel-${par_kernel}-build KERNEL_VERSION)
+    get_target_property(par_kernel_maj kernel-${par_kernel}-build KERNEL_VERSION_MAJOR)
+    get_target_property(par_kernel_min kernel-${par_kernel}-build KERNEL_VERSION_MINOR)
     add_custom_command (
             OUTPUT            ${par_name}.ko
             COMMAND           cp ${CMAKE_BINARY_DIR}/${par_name} ${CMAKE_SOURCE_DIR}/Kbuild
@@ -55,16 +73,16 @@ function (add_kernel_module par_name par_kernel)
             VERBATIM
     )
 
-    add_custom_target (${par_name}-build DEPENDS ${par_name}.ko)
+    add_custom_target (module-${par_name}-build DEPENDS ${par_name}.ko)
     add_custom_target (
-            ${par_name}-clean
+            module-${par_name}-clean
             COMMAND cp ${CMAKE_BINARY_DIR}/${par_name} ${CMAKE_SOURCE_DIR}/Kbuild
             COMMAND make -C ${CMAKE_SOURCE_DIR}/kernel/${par_kernel} M=${CMAKE_SOURCE_DIR} clean
             COMMAND rm ${CMAKE_SOURCE_DIR}/Kbuild
     )
 
     add_custom_target (
-            ${par_name}-install
+            module-${par_name}-install
             COMMAND cp ${CMAKE_BINARY_DIR}/${par_name} ${CMAKE_SOURCE_DIR}/Kbuild
             COMMAND make -C ${CMAKE_SOURCE_DIR}/kernel/${par_kernel} M=${CMAKE_SOURCE_DIR} modules_install
             COMMAND rm ${CMAKE_SOURCE_DIR}/Kbuild
@@ -72,6 +90,18 @@ function (add_kernel_module par_name par_kernel)
 
     file (REMOVE ${CMAKE_BINARY_DIR}/${par_name})
     file (APPEND ${CMAKE_BINARY_DIR}/${par_name} "obj-m += ${par_name}.o\n\n")
+
+    set_target_properties(module-${par_name}-build PROPERTIES KERNEL_VERSION_MAJOR ${par_kernel_maj})
+    set_target_properties(module-${par_name}-build PROPERTIES KERNEL_VERSION_MINOR ${par_kernel_min})
+    set_target_properties(module-${par_name}-build PROPERTIES KERNEL_VERSION       ${par_kernel_ver})
+
+    set_target_properties(module-${par_name}-clean PROPERTIES KERNEL_VERSION_MAJOR ${par_kernel_maj})
+    set_target_properties(module-${par_name}-clean PROPERTIES KERNEL_VERSION_MINOR ${par_kernel_min})
+    set_target_properties(module-${par_name}-clean PROPERTIES KERNEL_VERSION       ${par_kernel_ver})
+
+    set_target_properties(module-${par_name}-install PROPERTIES KERNEL_VERSION_MAJOR ${par_kernel_maj})
+    set_target_properties(module-${par_name}-install PROPERTIES KERNEL_VERSION_MINOR ${par_kernel_min})
+    set_target_properties(module-${par_name}-install PROPERTIES KERNEL_VERSION       ${par_kernel_ver})
 endfunction()
 
 function   (kernel_module_include par_name par_path)
