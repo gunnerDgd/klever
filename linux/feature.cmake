@@ -64,13 +64,12 @@ function (add_kernel_feature par_name par_kernel)
     endif()
 
     # Generate Kbuild File to build kernel embedded feature.
-    file (REMOVE ${FEATURE_DIR}/Kbuild)
-    file (APPEND ${FEATURE_DIR}/Kbuild "obj-y     += ${par_name}.o\n\n")
-
+    file  (REMOVE ${FEATURE_DIR}/Kbuild)
+    file  (APPEND ${FEATURE_DIR}/Kbuild "obj-y     += ${par_name}.o\n\n")
     file  (READ ${PRESET_KERNEL_DIR}/${par_kernel}/Kbuild CONTENTS)
-    string(FIND ${CONTENTS} "obj-y += klever/${par_name}" res REVERSE)
+    string(FIND "${CONTENTS}" "obj-y += klever/${par_name}" res REVERSE)
     if    (res EQUAL -1)
-        file (APPEND ${PRESET_KERNEL_DIR}/${par_kernel}/Kbuild "\nobj-y += klever/${par_name}\n")
+        file (APPEND ${PRESET_KERNEL_DIR}/${par_kernel}/Kbuild "\nobj-y += klever/${par_name}/\n")
     endif ()
 endfunction()
 
