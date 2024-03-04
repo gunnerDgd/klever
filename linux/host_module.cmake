@@ -2,7 +2,7 @@ function (add_host_kernel_module_with_symbol par_name)
     add_custom_command (
             OUTPUT            ${par_name}.ko
             COMMAND           cp ${CMAKE_BINARY_DIR}/host_${par_name} ${CMAKE_SOURCE_DIR}/Kbuild
-            COMMAND           make -C /lib/modules/${CMAKE_HOST_SYSTEM_VERSION}/build M=$(PWD) modules
+            COMMAND           make -C /lib/modules/${CMAKE_HOST_SYSTEM_VERSION}/build M=${CMAKE_SOURCE_DIR} modules
             COMMAND           rm ${CMAKE_SOURCE_DIR}/Kbuild
             COMMAND           mv ${CMAKE_SOURCE_DIR}/${par_name}.ko ${CMAKE_BINARY_DIR}/${par_name}-debug.ko
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
@@ -12,7 +12,7 @@ function (add_host_kernel_module_with_symbol par_name)
 
     add_custom_target (host_module-${par_name}-debug-build DEPENDS ${par_name}-debug.ko)
     add_custom_target (
-            module-${par_name}-debug-clean
+            host_module-${par_name}-debug-clean
             COMMAND cp ${CMAKE_BINARY_DIR}/host_${par_name} ${CMAKE_SOURCE_DIR}/Kbuild
             COMMAND make -C /lib/modules/${CMAKE_HOST_SYSTEM_VERSION}/build M=$(PWD) clean
             COMMAND rm ${CMAKE_SOURCE_DIR}/Kbuild
@@ -23,23 +23,22 @@ function (add_host_kernel_module_with_symbol par_name)
     file (APPEND ${CMAKE_BINARY_DIR}/host_${par_name} "obj-m += ${par_name}.o\n\n")
 endfunction()
 
-function (add_kernel_module par_name par_kernel)
+function (add_host_kernel_module par_name)
     add_custom_command (
             OUTPUT            ${par_name}.ko
             COMMAND           cp ${CMAKE_BINARY_DIR}/host_${par_name} ${CMAKE_SOURCE_DIR}/Kbuild
-            COMMAND           make -C /lib/modules/${CMAKE_HOST_SYSTEM_VERSION}/build M=$(PWD) modules
+            COMMAND           sudo -S make -C /lib/modules/${CMAKE_HOST_SYSTEM_VERSION}/build M=${CMAKE_SOURCE_DIR} modules
             COMMAND           rm ${CMAKE_SOURCE_DIR}/Kbuild
             COMMAND           mv ${CMAKE_SOURCE_DIR}/${par_name}.ko ${CMAKE_BINARY_DIR}/${par_name}.ko
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-            DEPENDS           ${CMAKE_BINARY_DIR}/${par_name}
             VERBATIM
     )
 
-    add_custom_target (module-${par_name}-build DEPENDS ${par_name}.ko)
+    add_custom_target (host_module-${par_name}-build DEPENDS ${par_name}.ko)
     add_custom_target (
-            module-${par_name}-clean
+            host_module-${par_name}-clean
             COMMAND cp ${CMAKE_BINARY_DIR}/host_${par_name} ${CMAKE_SOURCE_DIR}/Kbuild
-            COMMAND make -C /lib/modules/${CMAKE_HOST_SYSTEM_VERSION}/build M=$(PWD) clean
+            COMMAND sudo -S make -C /lib/modules/${CMAKE_HOST_SYSTEM_VERSION}/build M=${CMAKE_SOURCE_DIR} clean
             COMMAND rm ${CMAKE_SOURCE_DIR}/Kbuild
     )
 

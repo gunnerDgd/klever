@@ -61,7 +61,6 @@ function (add_kernel_module par_name par_kernel)
             COMMAND           rm ${CMAKE_SOURCE_DIR}/Kbuild
             COMMAND           mv ${CMAKE_SOURCE_DIR}/${par_name}.ko ${CMAKE_BINARY_DIR}/${par_name}.ko
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-            DEPENDS           ${CMAKE_BINARY_DIR}/${par_name}
             VERBATIM
     )
 
