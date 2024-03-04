@@ -10,7 +10,7 @@ function (add_kernel_module_with_symbol par_name par_kernel)
     get_target_property(par_kernel_min kernel-${par_kernel}-build KERNEL_VERSION_MINOR)
     add_custom_command (
             OUTPUT            ${par_name}-debug.ko
-            COMMAND           cp ${CMAKE_BINARY_DIR}/${par_name}-debug ${CMAKE_SOURCE_DIR}/Kbuild
+            COMMAND           cp ${CMAKE_BINARY_DIR}/${par_name} ${CMAKE_SOURCE_DIR}/Kbuild
             COMMAND           make -C ${CMAKE_SOURCE_DIR}/kernel/${par_kernel} M=${CMAKE_SOURCE_DIR} modules
             COMMAND           rm ${CMAKE_SOURCE_DIR}/Kbuild
             COMMAND           mv ${CMAKE_SOURCE_DIR}/${par_name}.ko ${CMAKE_BINARY_DIR}/${par_name}-debug.ko
@@ -22,21 +22,14 @@ function (add_kernel_module_with_symbol par_name par_kernel)
     add_custom_target (module-${par_name}-debug-build DEPENDS ${par_name}-debug.ko)
     add_custom_target (
             module-${par_name}-debug-clean
-            COMMAND cp ${CMAKE_BINARY_DIR}/${par_name}-debug ${CMAKE_SOURCE_DIR}/Kbuild
+            COMMAND cp ${CMAKE_BINARY_DIR}/${par_name} ${CMAKE_SOURCE_DIR}/Kbuild
             COMMAND make -C ${CMAKE_SOURCE_DIR}/kernel/${par_kernel} M=${CMAKE_SOURCE_DIR} clean
             COMMAND rm ${CMAKE_SOURCE_DIR}/Kbuild
     )
 
-    add_custom_target (
-            module-${par_name}-debug-install
-            COMMAND cp ${CMAKE_BINARY_DIR}/${par_name}-debug ${CMAKE_SOURCE_DIR}/Kbuild
-            COMMAND make -C ${CMAKE_SOURCE_DIR}/kernel/${par_kernel} M=${CMAKE_SOURCE_DIR} modules_install
-            COMMAND rm ${CMAKE_SOURCE_DIR}/Kbuild
-    )
-
-    file (REMOVE ${CMAKE_BINARY_DIR}/${par_name}-debug)
-    file (APPEND ${CMAKE_BINARY_DIR}/${par_name}-debug "ccflags-y += -g -DDEBUG\n")
-    file (APPEND ${CMAKE_BINARY_DIR}/${par_name}-debug "obj-m += ${par_name}.o\n\n")
+    file (REMOVE ${CMAKE_BINARY_DIR}/${par_name})
+    file (APPEND ${CMAKE_BINARY_DIR}/${par_name} "ccflags-y += -g -DDEBUG\n")
+    file (APPEND ${CMAKE_BINARY_DIR}/${par_name} "obj-m += ${par_name}.o\n\n")
 
     set_target_properties(module-${par_name}-debug-build PROPERTIES KERNEL_VERSION_MAJOR ${par_kernel_maj})
     set_target_properties(module-${par_name}-debug-build PROPERTIES KERNEL_VERSION_MINOR ${par_kernel_min})
@@ -67,7 +60,6 @@ function (add_kernel_module par_name par_kernel)
             COMMAND           make -C ${CMAKE_SOURCE_DIR}/kernel/${par_kernel} M=${CMAKE_SOURCE_DIR} modules
             COMMAND           rm ${CMAKE_SOURCE_DIR}/Kbuild
             COMMAND           mv ${CMAKE_SOURCE_DIR}/${par_name}.ko ${CMAKE_BINARY_DIR}/${par_name}.ko
-            COMMAND           gcc ${CMAKE_SOURCE_DIR}/kernel/${par_kernel}/vmlinux ${CMAKE_BINARY_DIR}/${par_name}.ko -o ${CMAKE_BINARY_DIR}/${par_name}-symbol
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             DEPENDS           ${CMAKE_BINARY_DIR}/${par_name}
             VERBATIM
@@ -78,13 +70,6 @@ function (add_kernel_module par_name par_kernel)
             module-${par_name}-clean
             COMMAND cp ${CMAKE_BINARY_DIR}/${par_name} ${CMAKE_SOURCE_DIR}/Kbuild
             COMMAND make -C ${CMAKE_SOURCE_DIR}/kernel/${par_kernel} M=${CMAKE_SOURCE_DIR} clean
-            COMMAND rm ${CMAKE_SOURCE_DIR}/Kbuild
-    )
-
-    add_custom_target (
-            module-${par_name}-install
-            COMMAND cp ${CMAKE_BINARY_DIR}/${par_name} ${CMAKE_SOURCE_DIR}/Kbuild
-            COMMAND make -C ${CMAKE_SOURCE_DIR}/kernel/${par_kernel} M=${CMAKE_SOURCE_DIR} modules_install
             COMMAND rm ${CMAKE_SOURCE_DIR}/Kbuild
     )
 
