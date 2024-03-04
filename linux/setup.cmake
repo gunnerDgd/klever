@@ -16,7 +16,6 @@ endif()
 
 string (REPLACE "\n" "" PRESET_BUSYBOX_URL "${PRESET_BUSYBOX_URL}")
 message("[Klever] BusyBox Download URL : ${PRESET_BUSYBOX_URL}")
-set    (PRESET_BUSYBOX_URL ${PRESET_BUSYBOX_URL} PARENT_SCOPE)
 
 if    (EXISTS /usr/bin/konsole)
     message("[Klever] Found KDE Konsole.")
@@ -30,10 +29,6 @@ elseif(EXISTS /usr/bin/gnome-terminal)
     set    (PRESET_TERMINAL_EXEC "-e")
 endif ()
 
-set    (PRESET_TERMINAL      ${PRESET_TERMINAL}      PARENT_SCOPE)
-set    (PRESET_TERMINAL_DIR  ${PRESET_TERMINAL_DIR}  PARENT_SCOPE)
-set    (PRESET_TERMINAL_EXEC ${PRESET_TERMINAL_EXEC} PARENT_SCOPE)
-
 if   (NOT DEFINED PRESET_KERNEL_DIR)
     set  (PRESET_KERNEL_DIR "${CMAKE_BINARY_DIR}/kernel")
 endif()
@@ -41,9 +36,6 @@ endif()
 if   (NOT DEFINED PRESET_KERNEL_TARGET_DIR)
     set  (PRESET_KERNEL_TARGET_DIR "${CMAKE_BINARY_DIR}/kernel_target")
 endif()
-
-set  (PRESET_KERNEL_TARGET_DIR ${PRESET_KERNEL_TARGET_DIR} PARENT_SCOPE)
-set  (PRESET_KERNEL_DIR        ${PRESET_KERNEL_DIR}        PARENT_SCOPE)
 
 if   (NOT EXISTS ${PRESET_KERNEL_DIR})
     file(MAKE_DIRECTORY ${PRESET_KERNEL_DIR})
@@ -56,7 +48,7 @@ endif()
 if   (NOT DEFINED PRESET_KERNEL_HEADER)
     list(APPEND PRESET_KERNEL_HEADER "/usr/src/kernels/${CMAKE_HOST_SYSTEM_VERSION}/include")
     list(APPEND PRESET_KERNEL_HEADER "/usr/src/linux-headers-${CMAKE_HOST_SYSTEM_VERSION}/include")
-    set (PRESET_KERNEL_HEADER ${PRESET_KERNEL_HEADER} PARENT_SCOPE)
+    set (PRESET_KERNEL_HEADER ${PRESET_KERNEL_HEADER})
 endif()
 
 define_property(TARGET PROPERTY KERNEL_VERSION_MAJOR BRIEF_DOCS "Kernel Major Version"    FULL_DOCS "Kernel Major Version")
