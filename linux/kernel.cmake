@@ -1,89 +1,11 @@
-# Definition
-# ==========
-# add_kernel (Name / Major Version / Minor Version)
-#
-# <Description>
-# Downloads and Adds Linux Kernel and its CMake Target.
-# Successful process of this function will add three CMake target to your CLion / CMake Project.
-#
-# -> ${Name}-config : Call "make menuconfig" for your kernel. Execute this target if you want to change your kernel's build config.
-# -> ${Name}-clean : Call "make clean" for your kernel. Execute this target if you want to clean all build result and initialize your build environment.
-# -> ${Name}-build : Builds "bzImage" (= make bzImage) for QEMU boot. This will build Kenrel Image and Symbol File (vmlinux) for QEMU debugging.
-#
-# <Arguments>
-# [Name]
-# Alias of the Kernel. This will be used when you execute the kernel in virtual environment (e.g. QEMU).
-#
-# [Major Version]
-# Major Version of the kernel. If the kernel version you wants to add is "6.7.1",
-# the major version is "6".
-#
-# [Minor Version]
-# Minor Version of the kernel. If the kernel version you wants to add is "6.7.1",
-# the major version is "7.1".
-#
+set (KLEVER_PATH_KERNEL_ARCHIVE ${KLEVER_PATH}/kernel_archive)
+set (KLEVER_PATH_KERNEL         ${KLEVER_PATH}/kernel)
 
-function   (add_kernel par_name par_maj par_min)
-    string(APPEND par_config "${PRESET_TERMINAL} ")
-    string(APPEND par_config "${PRESET_TERMINAL_DIR}${PRESET_KERNEL_DIR}/${par_name} ")
-    string(APPEND par_config "${PRESET_TERMINAL_EXEC} make menuconfig -j${PRESET_JOB_COUNT}")
-    if (NOT EXISTS ${PRESET_KERNEL_DIR}/linux-${par_maj}.${par_min}.tar.gz)
-        set    (par_url "https://cdn.kernel.org/pub/linux/kernel/")
-        string (APPEND     par_url "v${par_maj}.x/linux-${par_maj}.${par_min}.tar.gz")
+file (MAKE_DIRECTORY ${KLEVER_PATH_KERNEL_ARCHIVE})
+file (MAKE_DIRECTORY ${KLEVER_PATH_KERNEL})
 
-        message("[Klever] Kernel Not Exists. Try to Download Kernel at Linux Kernel Archive...")
-        message("[Klever] Target URL : ${par_url}")
-        file   (DOWNLOAD ${par_url} "${PRESET_KERNEL_DIR}/linux-${par_maj}.${par_min}.tar.gz")
-    endif ()
-
-    # Decompress and Build Entire Kernel (vmlinux / bzImage).
-    # This will Generate Kernel Modules' Object File which is needed to build custom module.
-    if   (NOT EXISTS ${PRESET_KERNEL_DIR}/${par_name})
-        message        ("[Klever] Decompressing Kernel Archive...")
-        execute_process(COMMAND tar xvzf     ${PRESET_KERNEL_DIR}/linux-${par_maj}.${par_min}.tar.gz                           WORKING_DIRECTORY ${PRESET_KERNEL_DIR})
-        execute_process(COMMAND mv           ${PRESET_KERNEL_DIR}/linux-${par_maj}.${par_min} ${PRESET_KERNEL_DIR}/${par_name} WORKING_DIRECTORY ${PRESET_KERNEL_DIR})
-        execute_process(COMMAND /bin/bash -c ${par_config})
-        file           (COPY_FILE "${PRESET_KERNEL_DIR}/${par_name}/Kbuild" "${PRESET_KERNEL_DIR}/${par_name}/Kbuild.old")
-        if   (PRESET_BUILD_ARCH STREQUAL "x86_64")
-            execute_process(COMMAND sudo -S make headers_install ARCH=x86_64 WORKING_DIRECTORY ${PRESET_KERNEL_DIR}/${par_name})
-        endif()
-    endif()
-
-    # If there are no .config in kernel directory,
-    # Klever will suppose that no configuration progress made before, , and run "make menuconfig" for build configuration.
-    if    (NOT EXISTS ${PRESET_KERNEL_DIR}/${par_name}/.config)
-        message        ("[Klever] .config not exists. Build menuconfig... (${par_config})")
-        execute_process(COMMAND /bin/bash -c ${par_config})
-    endif ()
-
-    message("[Klever] Successfully Added, Configured, and Built Kernel.")
-    message("[Klever] Your Kernel is Saved At ${PRESET_KERNEL_DIR}/${par_name}.")
-
-    # Remove old Kbuild. This contains old build data.
-    # Restore Kbuild with original one (Kbuild.old).
-    message("[Klever] Initializing Kbuild...")
-    file   (REMOVE    ${PRESET_KERNEL_DIR}/${par_name}/Kbuild)
-    file   (REMOVE    ${PRESET_KERNEL_DIR}/${par_name}/klever)
-    file   (COPY_FILE ${PRESET_KERNEL_DIR}/${par_name}/Kbuild.old ${PRESET_KERNEL_DIR}/${par_name}/Kbuild)
-
-    add_custom_target(kernel-${par_name}-config      COMMAND  /bin/bash -c ${par_config})
-    add_custom_target(kernel-${par_name}-clean       COMMAND make clean                                 WORKING_DIRECTORY ${PRESET_KERNEL_DIR}/${par_name})
-    add_custom_target(kernel-${par_name}-build-image COMMAND sudo -S make -j${PRESET_JOB_COUNT} bzImage WORKING_DIRECTORY ${PRESET_KERNEL_DIR}/${par_name})
-    add_custom_target(kernel-${par_name}-build       COMMAND sudo -S make -j${PRESET_JOB_COUNT} vmlinux WORKING_DIRECTORY ${PRESET_KERNEL_DIR}/${par_name})
-
-    set_target_properties(kernel-${par_name}-config      PROPERTIES KERNEL_VERSION       "${par_maj}.${par_min}")
-    set_target_properties(kernel-${par_name}-config      PROPERTIES KERNEL_VERSION_MAJOR ${par_maj})
-    set_target_properties(kernel-${par_name}-config      PROPERTIES KERNEL_VERSION_MINOR ${par_min})
-
-    set_target_properties(kernel-${par_name}-clean       PROPERTIES KERNEL_VERSION       "${par_maj}.${par_min}")
-    set_target_properties(kernel-${par_name}-clean       PROPERTIES KERNEL_VERSION_MAJOR ${par_maj})
-    set_target_properties(kernel-${par_name}-clean       PROPERTIES KERNEL_VERSION_MINOR ${par_min})
-
-    set_target_properties(kernel-${par_name}-build       PROPERTIES KERNEL_VERSION       "${par_maj}.${par_min}")
-    set_target_properties(kernel-${par_name}-build       PROPERTIES KERNEL_VERSION_MAJOR ${par_maj})
-    set_target_properties(kernel-${par_name}-build       PROPERTIES KERNEL_VERSION_MINOR ${par_min})
-
-    set_target_properties(kernel-${par_name}-build-image PROPERTIES KERNEL_VERSION       "${par_maj}.${par_min}")
-    set_target_properties(kernel-${par_name}-build-image PROPERTIES KERNEL_VERSION_MAJOR ${par_maj})
-    set_target_properties(kernel-${par_name}-build-image PROPERTIES KERNEL_VERSION_MINOR ${par_min})
-endfunction()
+include (${CMAKE_CURRENT_LIST_DIR}/kernel/add.cmake)
+include (${CMAKE_CURRENT_LIST_DIR}/kernel/build.cmake)
+include (${CMAKE_CURRENT_LIST_DIR}/kernel/clean.cmake)
+include (${CMAKE_CURRENT_LIST_DIR}/kernel/config.cmake)
+include (${CMAKE_CURRENT_LIST_DIR}/kernel/fetch.cmake)

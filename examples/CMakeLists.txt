@@ -1,0 +1,5 @@
+include (${CMAKE_SOURCE_DIR}/klever.cmake)
+fetch_kernel        (6 7.1)
+add_kernel          (example 6 7.1)
+kernel_config       (example-config  example)
+kernel_build_vmlinux(example-vmlinux example)

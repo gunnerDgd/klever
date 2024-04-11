@@ -1,0 +1,25 @@
+include        (ProcessorCount)
+ProcessorCount (KLEVER_JOB)
+
+if (UNIX AND NOT APPLE)
+    if   (NOT DEFINED KLEVER_PATH)
+        set (KLEVER_PATH ${CMAKE_BINARY_DIR}/klever)
+    endif()
+
+    if   (NOT DEFINED KLEVER_ARCH)
+        set    (KLEVER_ARCH)
+        message("[Klever] Target Architecture not defined.")
+        message("[Klever] Assume Target Architecture as same as host's one.")
+
+        execute_process(COMMAND uname -m OUTPUT_VARIABLE  KLEVER_ARCH)
+        string         (REPLACE "\n" "" KLEVER_ARCH     ${KLEVER_ARCH})
+        message        ("[Klever] Target Architecture : ${KLEVER_ARCH}")
+    endif()
+    include(${CMAKE_CURRENT_LIST_DIR}/linux/kernel.cmake)
+    include(${CMAKE_CURRENT_LIST_DIR}/linux/feature.cmake)
+    include(${CMAKE_CURRENT_LIST_DIR}/linux/executable.cmake)
+    include(${CMAKE_CURRENT_LIST_DIR}/linux/image.cmake)
+    include(${CMAKE_CURRENT_LIST_DIR}/linux/module.cmake)
+    include(${CMAKE_CURRENT_LIST_DIR}/linux/source.cmake)
+endif()
+

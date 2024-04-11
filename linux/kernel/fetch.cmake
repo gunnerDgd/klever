@@ -1,0 +1,23 @@
+function   (fetch_kernel MAJOR MINOR)
+    string (APPEND ARCHIVE      "linux-${MAJOR}.${MINOR}.tar.gz")
+    string (APPEND ARCHIVE_PATH ${KLEVER_PATH_KERNEL_ARCHIVE}/${ARCHIVE})
+
+    string (APPEND URL "https://cdn.kernel.org/pub/linux/kernel/")
+    string (APPEND URL "v${MAJOR}.x/")
+    string (APPEND URL ${ARCHIVE})
+
+    if   (NOT EXISTS ${ARCHIVE_PATH})
+        file (DOWNLOAD ${URL} ${ARCHIVE_PATH})
+        file (SIZE     ${ARCHIVE_PATH} RES)
+
+        if   (RES EQUAL 0)
+            file   (REMOVE ${ARCHIVE_PATH})
+            message("[Klever] Failed to Download Kernel Archive from Linux Kernel Archive")
+            message(SEND_ERROR "Abort")
+        endif()
+        message("[Klever] Successfully fetched kernel linux-${MAJOR}.${MINOR}.")
+    endif()
+    unset(ARCHIVE_PATH)
+    unset(ARCHIVE)
+    unset(URL)
+endfunction()

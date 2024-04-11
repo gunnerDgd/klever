@@ -1,0 +1,26 @@
+function   (kernel_feature_source NAME KERNEL)
+    string (APPEND PATH_KERNEL  ${KLEVER_PATH_KERNEL}/${KERNEL})
+    string (APPEND PATH_FEATURE ${PATH_KERNEL}/klever/${NAME})
+    string (APPEND BUILD        ${PATH_FEATURE}/Kbuild)
+
+    if   (NOT EXISTS ${PATH_FEATURE})
+        message("[Klever] Feature ${NAME} not found")
+        message(SEND_ERROR "Abort")
+    endif()
+
+    if   (NOT EXISTS ${BUILD})
+        message("[Klever] Feature ${NAME} is malformed")
+        message(SEND_ERROR "Abort")
+    endif()
+
+    foreach    (SOURCE IN LISTS ARGN)
+        get_target_property(SOURCE_PATH ${SOURCE} KLEVER_SOURCE_PATH)
+        get_target_property(SOURCE_OBJ  ${SOURCE} KLEVER_SOURCE)
+
+        file    (RELATIVE_PATH PATH ${PATH_FEATURE} ${SOURCE_PATH})
+        foreach (OBJ ${SOURCE_OBJ})
+            file(APPEND ${BUILD} "\t${PATH}/${OBJ}\\\n")
+        endforeach ()
+        file   (APPEND ${BUILD} "\n\n")
+    endforeach ()
+endfunction()
