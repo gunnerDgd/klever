@@ -2,8 +2,8 @@ include   (${CMAKE_CURRENT_LIST_DIR}/build/bzimage.cmake)
 include   (${CMAKE_CURRENT_LIST_DIR}/build/modules.cmake)
 include   (${CMAKE_CURRENT_LIST_DIR}/build/vmlinux.cmake)
 
-function  (kernel_build NAME NAME_KERNEL)
-    string(APPEND PATH    "${KLEVER_KERNEL_PATH}/${NAME_KERNEL}")
+function  (kernel_build NAME)
+    string(APPEND PATH    "${KLEVER_KERNEL_PATH}/${NAME}")
     string(APPEND COMMAND "make -j${KLEVER_JOB}")
 
     if   (NOT EXISTS ${PATH})
