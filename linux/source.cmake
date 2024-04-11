@@ -2,9 +2,8 @@ define_property(TARGET PROPERTY KLEVER_SOURCE_PATH BRIEF_DOCS "Kernel Source Dir
 define_property(TARGET PROPERTY KLEVER_SOURCE      BRIEF_DOCS "Kernel Source"           FULL_DOCS "Kernel Source")
 
 function   (add_kernel_source NAME)
-    file                 (RELATIVE_PATH PATH ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
-    set_target_properties(${NAME} PROPERTIES KERNEL_SOURCE "")
-    add_library          (${NAME} STATIC  ${ARGN})
+    file       (RELATIVE_PATH PATH ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+    add_library(${NAME} STATIC  ${ARGN})
     foreach    (SRC IN LISTS ARGN)
         string (FIND ${SRC} ".h" RES REVERSE)
         if   (NOT RES EQUAL -1)

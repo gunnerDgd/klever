@@ -4,7 +4,7 @@ function   (add_kernel_feature NAME KERNEL)
     string (APPEND BUILD        ${PATH_FEATURE}/Kbuild)
 
     file   (REMOVE ${BUILD})
-    file   (APPEND ${BUILD} "obj-y += ${NAME}.o")
+    file   (APPEND ${BUILD} "obj-y += ${NAME}.o\n\n")
     file   (APPEND ${PATH_KERNEL}/Kbuild "\nobj-y += klever/${NAME}/\n")
     unset  (PATH_KERNEL)
     unset  (PATH_FEATURE)
