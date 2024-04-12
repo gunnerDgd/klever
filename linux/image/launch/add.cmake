@@ -22,7 +22,4 @@ function   (add_kernel_launch NAME KERNEL IMAGE MEM)
 
     add_custom_target(${NAME} COMMAND /bin/bash ${PATH} WORKING_DIRECTORY ${KLEVER_PATH_IMAGE}/${IMAGE})
     add_dependencies (${NAME} ${IMAGE})
-    if   (NOT EXISTS ${KERNEL_PATH})
-        add_dependencies (${NAME} ${KERNEL}-bzimage)
-    endif()
 endfunction()

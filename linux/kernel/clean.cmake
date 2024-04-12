@@ -1,9 +1,9 @@
 function   (kernel_clean NAME)
-    string (APPEND PATH    "${KLEVER_KERNEL_PATH}/${NAME}")
+    string (APPEND PATH    "${KLEVER_PATH_KERNEL}/${NAME}")
     string (APPEND COMMAND "make clean")
 
     if   (NOT EXISTS ${PATH})
-        message("[Klever] Kernel named ${NAME} not found at ${KLEVER_KERNEL_PATH}")
+        message("[Klever] Kernel named ${NAME} not found at ${KLEVER_PATH_KERNEL}")
         message(SEND_ERROR "Abort")
     endif()
 
