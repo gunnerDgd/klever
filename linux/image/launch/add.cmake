@@ -13,7 +13,7 @@ function   (add_kernel_launch NAME KERNEL IMAGE MEM)
     file (REMOVE ${PATH})
     file (APPEND ${PATH} "#!/bin/sh\n")
     file (APPEND ${PATH} "nohup qemu-system-x86_64 ")
-    file (APPEND ${PATH} "-append \"nokaslr\" ")
+    file (APPEND ${PATH} "-append \"nokaslr\" -S -s ")
     file (APPEND ${PATH} "-m ${MEM} ")
 
     file (APPEND ${PATH} "-initrd ${IMAGE_PATH} ")
