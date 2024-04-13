@@ -1,0 +1,32 @@
+function (add_kernel_package NAME)
+    string (APPEND PATH  "${KLEVER_PATH_PACKAGE}/")
+    string (APPEND PATH  "${NAME}")
+    string (APPEND BUILD "${PATH}/Kbuild")
+
+    file   (REMOVE ${BUILD})
+    file   (TOUCH  ${BUILD})
+    unset  (BUILD)
+    unset  (PATH)
+endfunction()
+
+function   (kernel_package_build NAME KERNEL)
+    string (APPEND PATH_KERNEL "${KLEVER_PATH_KERNEL}/${KERNEL}")
+    string (APPEND PATH        "${KLEVER_PATH_PACKAGE}/")
+    string (APPEND PATH        "${NAME}")
+
+    add_custom_target (${NAME}-build COMMAND sudo -S make -C ${PATH_KERNEL} M=${PATH} modules)
+    add_custom_target (${NAME}-clean COMMAND sudo -S make -C ${PATH_KERNEL} M=${PATH} clean)
+    unset  (PATH_KERNEL)
+    unset  (PATH)
+endfunction()
+
+function   (kernel_package_build_host NAME)
+    string (APPEND KERNEL "/lib/modules/${CMAKE_HOST_SYSTEM_VERSION}/build")
+    string (APPEND PATH   "${KLEVER_PATH_PACKAGE}/")
+    string (APPEND PATH   "${NAME}")
+
+    add_custom_target (${NAME}-build COMMAND sudo -S make -C ${KERNEL} M=${PATH} modules)
+    add_custom_target (${NAME}-clean COMMAND sudo -S make -C ${KERNEL} M=${PATH} clean)
+    unset  (KERNEL)
+    unset  (PATH)
+endfunction()
