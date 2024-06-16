@@ -1,6 +1,15 @@
 function   (add_kernel_launch NAME KERNEL IMAGE MEM)
     string (APPEND KERNEL_PATH ${KLEVER_PATH_KERNEL}/${KERNEL}/arch/)
-    string (APPEND KERNEL_PATH ${KLEVER_ARCH}/)
+
+    if    (PRESET_ARCH_X86)
+        string (APPEND KERNEL_PATH x86/)
+    elseif(PRESET_ARCH_X86_64)
+        string (APPEND KERNEL_PATH x86/)
+    else  ()
+        message("[klever] Unsupported Architecture")
+        message(SEND_ERROR)
+    endif ()
+
     string (APPEND KERNEL_PATH boot/)
     string (APPEND KERNEL_PATH bzImage)
 
