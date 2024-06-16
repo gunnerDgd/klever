@@ -1,6 +1,6 @@
-function   (kernel_build_modules NAME)
+function   (kernel_build_modules NAME JOB)
     string (APPEND PATH    "${KLEVER_PATH_KERNEL}/${NAME}")
-    string (APPEND COMMAND "make modules -j${KLEVER_JOB}")
+    string (APPEND COMMAND "make modules -j${JOB}")
 
     if   (NOT EXISTS ${PATH})
         message("[Klever] Kernel named ${NAME} not found at ${KLEVER_PATH_KERNEL}")

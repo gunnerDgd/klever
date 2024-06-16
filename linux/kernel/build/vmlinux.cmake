@@ -1,6 +1,6 @@
-function   (kernel_build_vmlinux NAME)
+function   (kernel_build_vmlinux NAME JOB)
     string (APPEND PATH    "${KLEVER_PATH_KERNEL}/${NAME}")
-    string (APPEND COMMAND "make vmlinux -j${KLEVER_JOB}")
+    string (APPEND COMMAND "make vmlinux -j${JOB}")
 
     if   (NOT EXISTS ${PATH})
         message("[Klever] Kernel named ${NAME_KERNEL} not found at ${KLEVER_PATH_KERNEL}")
