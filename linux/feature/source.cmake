@@ -4,7 +4,7 @@ function   (kernel_feature_source NAME KERNEL)
     string (APPEND BUILD        ${PATH_FEATURE}/Kbuild)
 
     if   (NOT EXISTS ${PATH_FEATURE})
-        message("[Klever] Feature ${NAME} not found")
+        message("[Klever] Feature ${NAME} not found on kernel ${KERNEL}")
         message(SEND_ERROR "Abort")
     endif()
 
