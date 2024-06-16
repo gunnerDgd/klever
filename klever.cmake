@@ -14,6 +14,8 @@ if (UNIX AND NOT APPLE)
         execute_process(COMMAND uname -m OUTPUT_VARIABLE  KLEVER_ARCH)
         string         (REPLACE "\n" "" KLEVER_ARCH     ${KLEVER_ARCH})
         message        ("[Klever] Target Architecture : ${KLEVER_ARCH}")
+
+        set (KLEVER_ARCH ${KLEVER_ARCH} PARENT_SCOPE)
     endif()
     include(${CMAKE_CURRENT_LIST_DIR}/linux/tools.cmake)
     include(${CMAKE_CURRENT_LIST_DIR}/linux/kernel.cmake)
