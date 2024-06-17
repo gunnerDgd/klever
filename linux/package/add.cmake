@@ -15,6 +15,12 @@ function (add_kernel_package NAME)
         kernel_package_define(${NAME} PRESET_ARCH_X86)
         kernel_package_define(${NAME} PRESET_ARCH_BIT=32)
     endif ()
+
+    if    (PRESET_LINUX)
+        kernel_package_define(${NAME} PRESET_LINUX)
+    elseif(PRESET_WIN32)
+        kernel_package_define(${NAME} PRESET_WIN32)
+    endif ()
 endfunction()
 
 function   (kernel_package_build NAME KERNEL)
