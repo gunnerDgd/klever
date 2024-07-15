@@ -1,4 +1,4 @@
-set (KLEVER_PATH_PACKAGE ${KLEVER_PATH}/package PARENT_SCOPE)
+set (KLEVER_PATH_PACKAGE ${KLEVER_PATH}/package)
 file(MAKE_DIRECTORY      ${KLEVER_PATH}/package)
 
 include (${CMAKE_CURRENT_LIST_DIR}/package/define.cmake)
